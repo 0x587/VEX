@@ -98,13 +98,9 @@ task main()
 
 		//do
 		zk_avg = nAvgBatteryLevel;
-		//displayLCDNumber(0,0,zk_avg/1000);
-		//displayLCDChar(0,1,'.');
-		//displayLCDNumber(0,2,zk_avg%1000);
-		displayLCDString(0,0,"up:");
-		displayLCDNumber(0,3,up);
-		displayLCDString(1,0,"turn:");
-		displayLCDNumber(1,5,turn);
+		displayLCDNumber(0,0,zk_avg/1000);
+		displayLCDChar(0,1,'.');
+		displayLCDNumber(0,2,zk_avg%1000);
 		if(abs(command.left) <20)
 			{motor[left]=0;}
 		else{motor[left]=command.left;}
