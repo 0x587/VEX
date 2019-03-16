@@ -34,26 +34,16 @@ short hd(short value)
     {
         if(temp<64)
         {
-            temp *= 5;
-            temp /= 8;
-            temp -= 12.5;
+            temp *= 5;temp /= 8;temp -= 12.5;
         }else{
-            temp -= 64;
-            temp *= 8;
-            temp /= 5;
-            temp += 27.5;
+            temp -= 64;temp *= 8;temp /= 5;temp += 27.5;
         }
     }else{
         if(temp>-64)
         {
-            temp *= 5;
-            temp /= 8;
-            temp += 12.5;
+            temp *= 5;temp /= 8;temp += 12.5;
         }else{
-            temp += 64;
-            temp *= 8;
-            temp /= 5;
-            temp -= 27.5;
+            temp += 64;temp *= 8;temp /= 5;temp -= 27.5;
         }
     }
     back = temp;
