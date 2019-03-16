@@ -23,6 +23,7 @@ struct command{
 	bool ll;
 	bool rl;
 };
+command Command;
 short hd(short value)
 {
     int temp = value;
@@ -116,4 +117,54 @@ task main()
 		if(command.rl){motor[right_light]=127;}
 		else{motor[right_light]=0;}
 	}
+}
+task Read()
+{
+	short up,turn;
+	int zk_avg;
+	clearLCDLine(0);
+	clearLCDLine(1);
+	while(true)
+	{
+		up = vexRT[Ch3];
+		up = hd(up);
+		turn = vexRT[Ch1];
+		turn = hd(turn);
+		Command.left= up-turn;
+		Command.right = up+turn;
+		if(turn<0){Command.ll=true;}
+		else{Command.ll=false;}
+		if(turn>0){Command.rl=true;}
+		else{Command.rl=false;}
+
+		if(vexRT[Btn7U])//dt com
+		{
+			if(vexRT[Btn8U]){Command.dt = 127;}
+			else if(vexRT[Btn8D]){Command.dt = -127;}
+			else{Command.dt = 0;}
+		}else if(vexRT[Btn7D])// gl com
+		{
+			if(vexRT[Btn8U]){Command.gl = 127;}
+			else if(vexRT[Btn8D]){Command.gl = -127;}
+			else if(vexRT[Btn8L]){Command.gl = 0;}
+		}else if(vexRT[Btn7L])// hand com
+		{
+			if(vexRT[Btn8U]){Command.hand = 127;}
+			else if(vexRT[Btn8D]){Command.hand = -127;}
+			else{Command.hand = 0;}
+		}else if(vexRT[Btn7R])// dp com
+		{
+			if(vexRT[Btn8U]){Command.dp = 127;}
+			else if(vexRT[Btn8D]){Command.dp = -127;}
+			else{Command.dp = 0;}
+		}else
+		{
+			Command.dp = 0;
+			Command.hand = 0;
+			Command.dt = 0;
+		}
+}
+task Make()
+{
+
 }
