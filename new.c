@@ -29,12 +29,15 @@ struct State{
 	short turn;
 	int LeftPalstance;
 	int RightPalstance;
+	short LeftPower;
+	short RightPower;
 	int Range;
 	int HandState;
 };
 // global
 Command command;
 State state;
+int T = 100;
 // global
 void GetPalstance()
 {
@@ -75,6 +78,32 @@ short DataHandling(short data)
 	back = temp*127/100;
 	return back;
 }
+task LeftFlash()
+{
+	clearTimer(T1);
+	while(time1[T1]<T)
+	{
+	motor[LeftLight]=127;
+	}
+	clearTimer(T1);
+	while(time1[T1]<T)
+	{
+	motor[LeftLight]=0;
+	}
+}
+task RightFlash()
+{
+	clearTimer(T2);
+	while(time1[T2] <T)
+	{
+	motor[RightLight]=-127;
+	}
+	clearTimer(T2);
+	while(time1[T2]<T)
+	{
+	motor[RightLight]=0;
+	}
+}
 task Read()
 {
 	//Sensor
@@ -82,11 +111,13 @@ task Read()
 }
 task Do()
 {
-	motor[RightWheel]=command.RightMotor;
-	motor[LeftWheel]=command.LeftMotor;
+	if(abs(command.RightMotor)>20){motor[RightWheel]=command.RightMotor;}
+	else{motor[RightWheel]=0;}
+	if(abs(command.LeftMotor)>20){motor[LeftWheel]=command.LeftMotor;}
+	else{motor[LeftWheel]=0;}
 	motor[DtMotor]=command.DT;
 	motor[GlMotor]=command.GL;
-	motor[Dp1]=motor[Dp2]=command.DT;
+	motor[Dp1]=motor[Dp2]=command.DP;
 	motor[Hand1]=motor[Hand2]=command.Hand;
 }
 void ManualControl()
@@ -118,25 +149,49 @@ void ManualControl()
 	else
 	{
 		command.DP = 0;
-		command.Hand = 0;
 		command.DT = 0;
+		command.Hand = 0;
 	}
 }
 task Decision()
 {
 	ManualControl();
-	short up, turn;
+	short up, turn, WillLeft, WillRight;
 	up = DataHandling(vexRT[Ch3]);
 	turn = DataHandling(vexRT[Ch1]);
-	command.RightMotor = up + turn;
-	command.LeftMotor = up - turn;
+	WillLeft = up - turn;
+	WillRight = up + turn;
+	if(
+			((command.LeftMotor>0)&(WillLeft<0))
+			|
+			((command.LeftMotor<0)&(WillLeft>0))
+		){
+			command.LeftMotor=0;
+			wait1Msec(1000);
+			}else{command.LeftMotor=WillLeft;}
+	if(
+			((command.RightMotor>0)&(WillRight<0))
+			|
+			((command.RightMotor)<0&(WillRight>0))
+		){
+			command.RightMotor=0;
+			wait1Msec(1000);
+			}else{command.RightMotor=WillRight;}
 }
 task main()
 {
+	bLCDBacklight = true;
 	while(true)
 	{
 		startTask(Read, kDefaultTaskPriority);
 		startTask(Decision, kDefaultTaskPriority);
 		startTask(Do, kDefaultTaskPriority);
+		if(command.LeftMotor>command.RightMotor)
+		{startTask(RightFlash, 8);}
+		//else{motor[RightLight]=-127;}
+		if(command.LeftMotor<command.RightMotor)
+		{startTask(LeftFlash, 8);}
+		//else{motor[LeftLight]=127;}
+
 	}
 }
