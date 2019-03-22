@@ -106,19 +106,25 @@ task RightFlash()
 }
 task Read()
 {
-	//Sensor
-	GetPalstance();
+	while(true)
+	{
+		//Sensor
+		GetPalstance();
+	}
 }
 task Do()
 {
-	if(abs(command.RightMotor)>20){motor[RightWheel]=command.RightMotor;}
-	else{motor[RightWheel]=0;}
-	if(abs(command.LeftMotor)>20){motor[LeftWheel]=command.LeftMotor;}
-	else{motor[LeftWheel]=0;}
-	motor[DtMotor]=command.DT;
-	motor[GlMotor]=command.GL;
-	motor[Dp1]=motor[Dp2]=command.DP;
-	motor[Hand1]=motor[Hand2]=command.Hand;
+	while(true)
+	{
+		if(abs(command.RightMotor)>20){motor[RightWheel]=command.RightMotor;}
+		else{motor[RightWheel]=0;}
+		if(abs(command.LeftMotor)>20){motor[LeftWheel]=command.LeftMotor;}
+		else{motor[LeftWheel]=0;}
+		motor[DtMotor]=command.DT;
+		motor[GlMotor]=command.GL;
+		motor[Dp1]=motor[Dp2]=command.DP;
+		motor[Hand1]=motor[Hand2]=command.Hand;
+	}
 }
 void ManualControl()
 {
@@ -155,43 +161,22 @@ void ManualControl()
 }
 task Decision()
 {
-	ManualControl();
-	short up, turn, WillLeft, WillRight;
-	up = DataHandling(vexRT[Ch3]);
-	turn = DataHandling(vexRT[Ch1]);
-	WillLeft = up - turn;
-	WillRight = up + turn;
-	if(
-			((command.LeftMotor>0)&(WillLeft<0))
-			|
-			((command.LeftMotor<0)&(WillLeft>0))
-		){
-			command.LeftMotor=0;
-			wait1Msec(1000);
-			}else{command.LeftMotor=WillLeft;}
-	if(
-			((command.RightMotor>0)&(WillRight<0))
-			|
-			((command.RightMotor)<0&(WillRight>0))
-		){
-			command.RightMotor=0;
-			wait1Msec(1000);
-			}else{command.RightMotor=WillRight;}
+	while(true)
+	{
+		ManualControl();
+		short up, turn;
+		up = DataHandling(vexRT[Ch3]);
+		turn = DataHandling(vexRT[Ch1]);
+		command.LeftMotor = up - turn;
+		command.RightMotor = up + turn;
+	}
 }
 task main()
 {
 	bLCDBacklight = true;
-	while(true)
-	{
 		startTask(Read, kDefaultTaskPriority);
 		startTask(Decision, kDefaultTaskPriority);
 		startTask(Do, kDefaultTaskPriority);
-		if(command.LeftMotor>command.RightMotor)
-		{startTask(RightFlash, 8);}
-		//else{motor[RightLight]=-127;}
-		if(command.LeftMotor<command.RightMotor)
-		{startTask(LeftFlash, 8);}
-		//else{motor[LeftLight]=127;}
-
-	}
+		startTask(RightFlash, 8);
+		startTask(LeftFlash, 8);
 }
