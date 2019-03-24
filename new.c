@@ -59,7 +59,7 @@ short DataHandling(short data)
 		else if (temp < 80)
 		{
 			temp = 5 * (temp - 10) / 7;
-		}else{
+			}else{
 			temp = (5 * temp) / 2 - 150;
 		}
 	}
@@ -83,12 +83,12 @@ task LeftFlash()
 	clearTimer(T1);
 	while(time1[T1]<T)
 	{
-	motor[LeftLight]=127;
+		motor[LeftLight]=127;
 	}
 	clearTimer(T1);
 	while(time1[T1]<T)
 	{
-	motor[LeftLight]=0;
+		motor[LeftLight]=0;
 	}
 }
 task RightFlash()
@@ -96,12 +96,12 @@ task RightFlash()
 	clearTimer(T2);
 	while(time1[T2] <T)
 	{
-	motor[RightLight]=-127;
+		motor[RightLight]=-127;
 	}
 	clearTimer(T2);
 	while(time1[T2]<T)
 	{
-	motor[RightLight]=0;
+		motor[RightLight]=0;
 	}
 }
 task Read()
@@ -174,9 +174,9 @@ task Decision()
 task main()
 {
 	bLCDBacklight = true;
-		startTask(Read, kDefaultTaskPriority);
-		startTask(Decision, kDefaultTaskPriority);
-		startTask(Do, kDefaultTaskPriority);
-		startTask(RightFlash, 8);
-		startTask(LeftFlash, 8);
+	startTask(Read, kDefaultTaskPriority);
+	startTask(Decision, kDefaultTaskPriority);
+	startTask(Do, kDefaultTaskPriority);
+	startTask(RightFlash, 8);
+	startTask(LeftFlash, 8);
 }
