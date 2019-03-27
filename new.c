@@ -1,14 +1,15 @@
-#pragma config(Sensor, in1,    ,               sensorPotentiometer)
-#pragma config(Sensor, in2,    ,               sensorPotentiometer)
-#pragma config(Sensor, dgtl1,  LeftEncode,     sensorQuadEncoder)
-#pragma config(Sensor, dgtl3,  RightEncode,    sensorQuadEncoder)
+	#pragma config(I2C_Usage, I2C1, i2cSensors)
+#pragma config(Sensor, in1,    a,              sensorPotentiometer)
+#pragma config(Sensor, in2,    b,              sensorPotentiometer)
+#pragma config(Sensor, in3,    c,              sensorPotentiometer)
+#pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           LeftLight,     tmotorVexFlashlight, openLoop, reversed)
 #pragma config(Motor,  port2,           RightWheel,    tmotorVex393HighSpeed_MC29, openLoop)
 #pragma config(Motor,  port3,           LeftWheel,     tmotorVex393HighSpeed_MC29, openLoop)
 #pragma config(Motor,  port4,           Hand1,         tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port5,           Hand2,         tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           DtMotor,       tmotorVex393HighSpeed_MC29, openLoop)
-#pragma config(Motor,  port7,           Dp1,           tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port7,           Dp1,           tmotorVex393_MC29, openLoop, encoderPort, I2C_3)
 #pragma config(Motor,  port8,           Dp2,           tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port9,           GlMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
 #pragma config(Motor,  port10,          RightLight,    tmotorVexFlashlight, openLoop, reversed)
@@ -27,28 +28,15 @@ struct command{
 struct state{
 	short up;
 	short turn;
-	int LeftPalstance;
-	int RightPalstance;
-	short LeftPower;
-	short RightPower;
-	int Range;
-	int HandState;
+	short DpSpeed;
 };
 // global
 command Command;
 state State;
-int T = 100;
+int TurnFlashT = 100;
+bool isLight = true;
 // global
-void GetPalstance()
-{
-	// return Palstance rad/s
-	int StartLCode, StartRCode;
-	StartLCode = SensorValue[LeftEncode];
-	StartRCode = SensorValue[RightEncode];
-	wait1Msec(5);
-	State.LeftPalstance = (SensorValue[LeftEncode] - StartLCode) / 5 * 1000;
-	State.RightPalstance = (SensorValue[RightEncode] - StartRCode) / 5 * 1000;
-}
+
 short DataHandling(short data)
 {
 	int temp = (data*100/127);
@@ -58,9 +46,9 @@ short DataHandling(short data)
 		if (temp < 10){temp = 0;}
 		else if (temp < 80)
 		{
-			temp = 5 * (temp - 10) / 7;
+			temp = (temp - 10) / 2;
 			}else{
-			temp = (5 * temp) / 2 - 150;
+			temp = (13 * temp) / 4 - 225;
 		}
 	}
 	else
@@ -68,40 +56,68 @@ short DataHandling(short data)
 		if (temp > -10){temp = 0;}
 		else if (temp > -80)
 		{
-			temp = 5 * (temp + 10) / 7;
+			temp = (temp + 10) / 2;
 		}else
 		{
-			temp = (5 * temp) / 2 + 150;
+			temp = (13 * temp) / 4 + 225;
 		}
 
 	}
 	back = temp*127/100;
 	return back;
 }
-task LeftFlash()
+task Flash()
 {
-	clearTimer(T1);
-	while(time1[T1]<T)
+	while(true)
 	{
-		motor[LeftLight]=127;
-	}
-	clearTimer(T1);
-	while(time1[T1]<T)
-	{
-		motor[LeftLight]=0;
-	}
-}
-task RightFlash()
-{
-	clearTimer(T2);
-	while(time1[T2] <T)
-	{
-		motor[RightLight]=-127;
-	}
-	clearTimer(T2);
-	while(time1[T2]<T)
-	{
-		motor[RightLight]=0;
+		if(!vexRT[Btn5D])
+		{
+			if(isLight)
+			{
+				if(vexRT[Btn7R] & vexRT[Btn8D])
+				{
+					// Boom Flash
+					short BoomT;
+					BoomT = State.DpSpeed;
+					clearTimer(T1);
+					motor[LeftLight]=motor[RightLight]=127;
+					waitUntil(time1[T1]>BoomT);
+					clearTimer(T1);
+					motor[LeftLight]=motor[RightLight]=0;
+					waitUntil(time1[T1]>BoomT);
+				}else
+				{
+					// Turning FLash
+					if(vexRT[Ch1]<0)
+					{
+						clearTimer(T1);
+						motor[LeftLight]=127;
+						waitUntil(time1[T1]>TurnFlashT);
+						clearTimer(T1);
+						motor[LeftLight]=0;
+						waitUntil(time1[T1]>TurnFlashT);
+					}else{motor[LeftLight]=127;}
+					if(vexRT[Ch1]>0)
+					{
+						clearTimer(T2);
+						motor[RightLight]=127;
+						waitUntil(time1[T2]>TurnFlashT);
+						clearTimer(T2);
+						motor[RightLight]=0;
+						waitUntil(time1[T2]>TurnFlashT);
+					}else{motor[RightLight]=127;}
+				}
+			}else{
+				motor[LeftLight]=motor[RightLight]=0;
+			}
+		}else{
+				clearTimer(T1);
+				motor[LeftLight]=motor[RightLight]=127;
+				waitUntil(time1[T1]>50);
+				clearTimer(T1);
+				motor[LeftLight]=motor[RightLight]=0;
+				waitUntil(time1[T1]>50);
+				}
 	}
 }
 task Read()
@@ -109,7 +125,12 @@ task Read()
 	while(true)
 	{
 		//Sensor
-		GetPalstance();
+		State.DpSpeed=getMotorVelocity(Dp1);
+		if(vexRT[Btn5U])
+			{
+				isLight=!isLight;
+				wait1Msec(200);
+			}
 	}
 }
 task Do()
@@ -124,6 +145,7 @@ task Do()
 		motor[GlMotor]=Command.GL;
 		motor[Dp1]=motor[Dp2]=Command.DP;
 		motor[Hand1]=motor[Hand2]=Command.Hand;
+		SensorValue[in1]=123;
 	}
 }
 void ManualControl()
@@ -159,24 +181,33 @@ void ManualControl()
 		Command.Hand = 0;
 	}
 }
+int tt;
 task Decision()
 {
 	while(true)
 	{
+		tt = -4095+SensorValue[b]+(SensorValue[a]);
 		ManualControl();
 		short up, turn;
 		up = DataHandling(vexRT[Ch3]);
-		turn = DataHandling(vexRT[Ch1]);
-		Command.LeftMotor = up - turn;
-		Command.RightMotor = up + turn;
+		turn = (vexRT[Ch1]/2);
+		if(abs(up)<64)
+		{
+			Command.LeftMotor = up - turn;
+			Command.RightMotor = up + turn;
+		}else{
+			Command.LeftMotor = up - 2 * turn;
+			Command.RightMotor = up + 2 * turn;
+		}
 	}
 }
+
 task main()
 {
 	bLCDBacklight = true;
 	startTask(Read, kDefaultTaskPriority);
 	startTask(Decision, kDefaultTaskPriority);
 	startTask(Do, kDefaultTaskPriority);
-	startTask(RightFlash, 8);
-	startTask(LeftFlash, 8);
+	startTask(Flash, kDefaultTaskPriority);
+	waitUntil(false);
 }
