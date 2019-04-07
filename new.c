@@ -1,4 +1,4 @@
-	#pragma config(I2C_Usage, I2C1, i2cSensors)
+#pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    a,              sensorPotentiometer)
 #pragma config(Sensor, in2,    b,              sensorPotentiometer)
 #pragma config(Sensor, in3,    c,              sensorPotentiometer)
