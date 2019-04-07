@@ -16,12 +16,18 @@ DriverMotorValue DriverMotor[4];
 ///////////////////////////////
 task DriverMotorCommand()
 {
-	// MapMotorPort
+	float Kp = 0.1;
+	float Kd = 0.1;
+	//Set Motor Port
+	DriverMotor[0].Port = LeftFront;
+	DriverMotor[1].Port = LeftBack;
+	DriverMotor[2].Port = RightFront;
+	DriverMotor[3].Port = RightBack;
+	// Set PID Value
 	for(short i = 0;i<4;i++)
 	{
-		DriverMotor[i].Port = i+1;
-		DriverMotor[i].Kp = 0.1;
-		DriverMotor[i].Kd = 0.1;
+		DriverMotor[i].Kp = Kp;
+		DriverMotor[i].Kd = Kd;
 	}
 	while(true)
 	{
@@ -31,7 +37,11 @@ task DriverMotorCommand()
 		{
 			short Error = DriverMotor[i].TargetSpeed - DriverMotor[i].Speed;
 			DriverMotor[i].dValue += Error;
-			motor[DriverMotor[i].Port] += ((Error * DriverMotor[i].Kp) + (DriverMotor[i].dValue * DriverMotor[i].Kd));
+			motor[DriverMotor[i].Port] += (
+											(Error * DriverMotor[i].Kp)
+											+ 
+											(DriverMotor[i].dValue * DriverMotor[i].Kd)
+										);
 		}
 	}
 }
