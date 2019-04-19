@@ -8,4 +8,5 @@ struct DriverMotorValue
 	float Kd;
 	int LastErroe;
 	int dValue;
+	short Force;
 };
