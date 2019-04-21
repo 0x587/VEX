@@ -26,24 +26,17 @@ short DataHandling(short data)
 
 	}
 	back = temp*127/100;
-	if (abs(back) <= 15)
-	{
-		back =0;
-	}
 	return back;
 }
-void UpDateCommand(command* Command)
+void UpDateTargetSpeed(DriverMotorValue* MotorList)
 {
-	short Up, Yaw;
-	Up = DataHandling(vexRT[Ch3]);
+	short Xasis,Yasis,Yaw;
+	Xasis = DataHandling(vexRT[Ch4]);
+	Yasis = DataHandling(vexRT[Ch3]);
 	Yaw = DataHandling(vexRT[Ch1]);
-	if(abs(Up) > 75)
-	{
-		Command -> RightWheelPower = (Up - Yaw * 1.5);
-		Command -> LeftWheelPower  = (Up + Yaw*1.5);
-	}else
-	{
-		Command -> RightWheelPower = (Up - Yaw );
-		Command -> LeftWheelPower = (Up + Yaw);
-	}
+
+	MotorList[0].TargetSpeed = (Yasis + Xasis + Yaw);
+	MotorList[0].TargetSpeed = (Yasis + -Xasis + Yaw);
+	MotorList[0].TargetSpeed = (Yasis + -Xasis + -Yaw);
+	MotorList[0].TargetSpeed = (Yasis + Xasis + -Yaw);
 }
