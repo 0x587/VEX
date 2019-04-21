@@ -10,3 +10,9 @@ struct DriverMotorValue
 	int dValue;
 	short Force;
 };
+
+struct command
+{
+	short LeftWheelPower;
+	short RightWheelPower;
+};

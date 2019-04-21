@@ -1,5 +1,7 @@
-#include "Struct.c"
+#pragma config(Motor, port8, LeftWheel, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_1)
+#pragma config(Motor, port9, RightWheel, tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 
+#include "Struct.c"
 void UpDateSpeed(DriverMotorValue* MotorList)
 {
 	short T=5;
@@ -30,4 +32,10 @@ void PIDCommandMotor(DriverMotorValue* MotorList)
 			motor[MotorList[i].Port] += ((Error * MotorList[i].Kp)+(MotorList[i].dValue * MotorList[i].Kd));
 		}
 	}
+}
+
+void DriverMotorDo(command* Command)
+{
+	motor[LeftWheel]  = Command -> LeftWheelPower;
+	motor[RightWheel] = Command -> RightWheelPower;
 }

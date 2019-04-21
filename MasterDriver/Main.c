@@ -17,46 +17,14 @@
 #include "Struct.c"
 #include "Motor.c"
 //Global Four Driver Motor
-DriverMotorValue DriverMotor[5];
+command Command;
 ///////////////////////////////
 task DriverMotorCommand()
 {
-	float DefKp = 0.215;
-	float DefKd = 0.0;
-
-	//Set Motor Port
-	DriverMotor[0].Port = RightWheel;
-	DriverMotor[1].Port = LeftWheel;
-	// Set PID Value
-	for(short i = 0;i<4;i++)
-	{
-		DriverMotor[i].Kp = DefKp;
-		DriverMotor[i].Kd = DefKd;
-	}
 	while(true)
 	{
-		UpDateTargetSpeed(DriverMotor);
-		//UpDateSpeed(DriverMotor);//Spend 5ms
-		//for(short i = 0;i<5;i++)
-		//{
-		//	}else{
-		//		if(DriverMotor[i].Speed != 0)
-		//		{
-		//			DriverMotor[i].Force = (motor[DriverMotor[i].Port] / DriverMotor[i].Speed)*100;
-		//		}
-		//		short Error = DriverMotor[i].TargetSpeed - DriverMotor[i].Speed;
-		//		DriverMotor[i].dValue += (Error - DriverMotor[i].LastErroe);
-		//		DriverMotor[i].LastErroe = Error;
-		//		//if(abs(motor[DriverMotor[i].Port] + ((Error * DriverMotor[i].Kp)+(DriverMotor[i].dValue * DriverMotor[i].Kd)))>15)
-		//		//{motor[DriverMotor[i].Port] += ((Error * DriverMotor[i].Kp)+(DriverMotor[i].dValue * DriverMotor[i].Kd));}
-		//		//else{motor[DriverMotor[i].Port] = 0;}
-		//		motor[DriverMotor[i].Port] = DriverMotor[i].TargetSpeed;
-		//	}
-		//}
-		for(short i = 0;i<2;i++)
-		{
-			motor[DriverMotor[i].Port] = DriverMotor[i].TargetSpeed;
-		}
+		UpDateCommand(Command);
+		DriverMotorDo(Command);
 	}
 }
 task Flash()
