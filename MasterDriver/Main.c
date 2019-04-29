@@ -1,5 +1,6 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, dgtl1,  BoomLock,       sensorTouch)
+#pragma config(Sensor, dgtl2,  sonar,          sensorSONAR_cm)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -8,8 +9,8 @@
 #pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
 #pragma config(Motor,  port4,           GlMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
 #pragma config(Motor,  port5,            ,             tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
-#pragma config(Motor,  port7,           BoomMotorAnother, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
+#pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, encoderPort, I2C_3)
+#pragma config(Motor,  port7,           BoomMotorAnother, tmotorVex393_MC29, openLoop, encoderPort, I2C_3)
 #pragma config(Motor,  port8,           LeftWheel,     tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_1)
 #pragma config(Motor,  port9,           RightWheel,    tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 #pragma config(Motor,  port10,          Light,         tmotorVexFlashlight, openLoop, reversed)
@@ -104,9 +105,9 @@ task OtherDriver()
 		{
 			while(!SensorValue[BoomLock])
 			{
-				motor[BoomMotor] = 127;
+				motor[BoomMotor] = -127;
 			}
-			motor[BoomMotor] = 50;//Lock Power
+			motor[BoomMotor] = -50;//Lock Power
 			isLocking = true;
 		}else{
 			isLocking = false;
@@ -115,7 +116,7 @@ task OtherDriver()
 		{
 			if(isLocking)
 			{
-				motor[BoomMotor] = 127;
+				motor[BoomMotor] = -127;
 				waitUntil( !SensorValue[BoomLock] );
 				CanShoot = isLocking = false;
 			}
