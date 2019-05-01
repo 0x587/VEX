@@ -3,12 +3,12 @@ struct DriverMotorValue
 	tMotor Port;
 	int StartCode;
 	short Speed;
+	short TargetPower;
 	short TargetSpeed;
-	float Kp;
-	float Kd;
-	int LastErroe;
+	int LastError;
 	int dValue;
 	short Force;
+	bool isMoving;
 };
 
 struct command

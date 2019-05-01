@@ -18,13 +18,15 @@
 #include "Motor.c"
 //Global Four Driver Motor
 command Command;
+DriverMotorValue DriverMotorList[2];
+
 ///////////////////////////////
 task DriverMotorCommand()
 {
 	while(true)
 	{
 		UpDateCommand(Command);
-		DriverMotorDo(Command);
+		DriverMotorDo(DriverMotorList);
 	}
 }
 task Flash()
@@ -132,6 +134,8 @@ task OutPutBoom()
 }
 task main()
 {
+	DriverMotorList[0].Port = LeftWheel;
+	DriverMotorList[1].Port = RightWheel;
 	slaveMotor(BoomMotorAnother, BoomMotor);
 	startTask(Flash, kDefaultTaskPriority);
 	startTask(DriverMotorCommand, kDefaultTaskPriority);
