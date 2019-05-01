@@ -63,11 +63,11 @@ task Flash()
 		}
 	}
 }
+task OtherDriver()
+{
 	bool LockReady;
 	bool isLocking;
 	bool CanShoot;
-task OtherDriver()
-{
 	while(true)
 	{
 		if (vexRT[Btn8U]) //DT com
@@ -131,19 +131,19 @@ task OtherDriver()
 		}
 	}
 }
-task OutPutBoom()
-{
-	short Speed;
-	while(true)
-	{
-		Speed = getMotorVelocity(BoomMotor);
-		datalogAddValueWithTimeStamp(0 ,Speed);
-		wait1Msec(5);
-	}
-}
+task Auto(){}
 task main()
 {
+	//Config
 	startTask(DriverMotorConfig,kDefaultTaskPriority);
+	//Wait Start Button
+	waitUntil(!true);
+	short AutoTime = 15 *1000;
+	clearTimer(T1);
+	startTask(Auto, kDefaultTaskPriority);//Do Auto Part
+	waitUntil(time1[T1] >AutoTime);
+	stopTask(Auto);
+	//Start Manual Part
 	startTask(Flash,            kDefaultTaskPriority);
 	startTask(DriverMotor,      kDefaultTaskPriority);
 	startTask(OtherDriver,      kDefaultTaskPriority);
