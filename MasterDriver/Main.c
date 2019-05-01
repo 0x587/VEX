@@ -21,11 +21,20 @@ command Command;
 DriverMotorValue DriverMotorList[2];
 
 ///////////////////////////////
-task DriverMotorCommand()
+task DriverMotorConfig()
 {
-	while(true)
+	DriverMotorList[0].Port = LeftWheel;
+	DriverMotorList[1].Port = RightWheel;
+	slaveMotor(BoomMotorAnother, BoomMotor);
+}
+task DriverMotor()
+{
+	while (true)
 	{
 		UpDateCommand(Command);
+		UpDateMotorState(DriverMotorList);
+		DriverMotorList[0].TargetPower = Command.LeftWheelPower;
+		DriverMotorList[1].TargetPower = Command.RightWheelPower;
 		DriverMotorDo(DriverMotorList);
 	}
 }
@@ -134,12 +143,10 @@ task OutPutBoom()
 }
 task main()
 {
-	DriverMotorList[0].Port = LeftWheel;
-	DriverMotorList[1].Port = RightWheel;
-	slaveMotor(BoomMotorAnother, BoomMotor);
-	startTask(Flash, kDefaultTaskPriority);
-	startTask(DriverMotorCommand, kDefaultTaskPriority);
-	startTask(OtherDriver, kDefaultTaskPriority);
+	startTask(DriverMotorConfig,kDefaultTaskPriority);
+	startTask(Flash,            kDefaultTaskPriority);
+	startTask(DriverMotor,      kDefaultTaskPriority);
+	startTask(OtherDriver,      kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
 	waitUntil(false);
 }

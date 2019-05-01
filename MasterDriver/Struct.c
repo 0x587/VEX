@@ -5,8 +5,6 @@ struct DriverMotorValue
 	short Speed;
 	short TargetPower;
 	short TargetSpeed;
-	int LastError;
-	int dValue;
 	short Force;
 	bool isMoving;
 };

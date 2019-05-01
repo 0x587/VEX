@@ -2,7 +2,7 @@
 #pragma config(Motor, port9, RightWheel, tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 
 #include "Struct.c"
-void UpDateSpeed(DriverMotorValue* MotorList)
+void UpDateMotorState(DriverMotorValue* MotorList)
 {
 	short T=5;//ms
 	for (short i = 0; i < 2; i++)
@@ -17,6 +17,7 @@ void UpDateSpeed(DriverMotorValue* MotorList)
 		if (abs(MotorList[i].Speed) > 0)
 		{MotorList[i].isMoving = true;}
 		else{MotorList[i].isMoving = false;}
+		MotorList[i].Force = motor[MotorList[i].Port] / MotorList[i].Speed;
 	}
 }
 
