@@ -134,15 +134,21 @@ task OtherDriver()
 task Auto(){}
 task main()
 {
+	bool DoAuto = false;
 	//Config
 	startTask(DriverMotorConfig,kDefaultTaskPriority);
 	//Wait Start Button
 	waitUntil(!true);
-	short AutoTime = 15 *1000;
-	clearTimer(T1);
-	startTask(Auto, kDefaultTaskPriority);//Do Auto Part
-	waitUntil(time1[T1] >AutoTime);
-	stopTask(Auto);
+	if (DoAuto)
+	{
+		short AutoTime = 15 * 1000;
+		clearTimer(T1);
+		startTask(Auto, kDefaultTaskPriority); //Do Auto Part
+		waitUntil(time1[T1] > AutoTime);
+		stopTask(Auto);
+	}
+	
+	
 	//Start Manual Part
 	startTask(Flash,            kDefaultTaskPriority);
 	startTask(DriverMotor,      kDefaultTaskPriority);
