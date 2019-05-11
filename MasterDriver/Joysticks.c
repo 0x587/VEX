@@ -1,4 +1,5 @@
 #include "Struct.c"
+#include "Math.c"
 short DataHandling(short data)
 {
 	int temp = (data*100/127);
@@ -35,8 +36,8 @@ short DataHandling(short data)
 void UpDateCommand(command* Command)
 {
 	short Up, Yaw;
-	Up = DataHandling(vexRT[Ch3]);
-	Yaw = DataHandling(vexRT[Ch1]);
+	Up = DataHandling(Max(vexRT[Ch3], vexRT[Ch2]));
+	Yaw = DataHandling(Max(vexRT[Ch1], vexRT[Ch4]));
 	if(abs(Up) > 75)
 	{
 		Command -> RightWheelPower = (Up - Yaw * 1.5);
