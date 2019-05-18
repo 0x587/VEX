@@ -192,14 +192,49 @@ task GlCom()
 		}
 	}
 }
+task HighHand()
+{
+	bool Hold;
+	bool Shoot;
+	while(true)
+	{
+		if (vexRT[Btn7R])
+		{
+			Hold = !Hold;
+			waitUntil(!vexRT[Btn7R]);
+		}
+		if(Hold)
+		{
+			if(SensorValue[I2C_3] < -550){motor[HighHandMotor] = 75;}
+			else if(SensorValue[I2C_3] > -350){motor[HighHandMotor] = -75;}
+			else{motor[HighHandMotor] = 0;}
+			if(vexRT[Btn7L])
+			{
+				motor[HighHandMotor] = -127;
+				waitUntil(SensorValue[I2C_3] < -950);
+				motor[HighHandMotor] = 0;
+			}
+		}else
+		{
+			if(!SensorValue[HighHandTouch]){motor[HighHandMotor] = 50;}
+			else{motor[HighHandMotor] = 0;}
+		}
+	}
+}
 task main()
 {
+	//HighHand Rest
+	motor[HighHandMotor] = 75;
+	waitUntil(SensorValue[HighHandTouch]);
+	SensorValue[I2C_3] = 0;
+	motor[HighHandMotor] = 0;
 	startTask(GlCom, kDefaultTaskPriority);
 	startTask(Hand, kDefaultTaskPriority);
 	startTask(Boom, kDefaultTaskPriority);
 	startTask(Flash, kDefaultTaskPriority);
 	startTask(DriverMotorCommand, kDefaultTaskPriority);
 	startTask(OtherDriver, kDefaultTaskPriority);
+	startTask(HighHand,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
 	waitUntil(false);
 }
