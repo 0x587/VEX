@@ -101,7 +101,7 @@ task Boom()
 		{
 			while(SensorValue[HandCoder] < 1200)
 			{
-				motor[HandMotor] = 30;
+				motor[HandMotor] = 50;
 			}
 			motor[HandMotor] = 0;
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
@@ -127,9 +127,10 @@ task Hand()
 			clearTimer(T4);
 			motor[HandMotor] = -127;
 			waitUntil(SensorValue[HandCoder]< 720);
-			waitUntil(vexRT[Btn8L] | time1[T4] >1000);
+			motor[HandMotor] = -30;
+			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder]> 1800);
+			waitUntil(SensorValue[HandCoder]> 1250);
 			motor[HandMotor] = 0;
 		}else if(vexRT[Btn8R])
 		{
