@@ -1,15 +1,17 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    HandCoder,      sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  BoomLock,       sensorTouch)
-#pragma config(Sensor, dgtl2,  sonar,          sensorSONAR_cm)
+#pragma config(Sensor, dgtl2,  KeyTouch,       sensorTouch)
+#pragma config(Sensor, dgtl3,  HighHandTouch,  sensorTouch)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop)
 #pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
-#pragma config(Motor,  port4,           GlMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
-#pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
-#pragma config(Motor,  port7,           BoomMotorAnother, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
+#pragma config(Motor,  port4,           HighHandMotor, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
+#pragma config(Motor,  port5,           HandMotor,     tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port7,           BoomMotorAnother, tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port8,           LeftWheel,     tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_1)
 #pragma config(Motor,  port9,           RightWheel,    tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 #pragma config(Motor,  port10,          Light,         tmotorVexFlashlight, openLoop, reversed)
@@ -101,7 +103,7 @@ task Boom()
 		{
 			while(SensorValue[HandCoder] < 1200)
 			{
-				motor[HandMotor] = 30;
+				motor[HandMotor] = 50;
 			}
 			motor[HandMotor] = 0;
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
@@ -127,9 +129,10 @@ task Hand()
 			clearTimer(T4);
 			motor[HandMotor] = -127;
 			waitUntil(SensorValue[HandCoder]< 720);
-			waitUntil(vexRT[Btn8L] | time1[T4] >1000);
+			motor[HandMotor] = -30;
+			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder]> 1800);
+			waitUntil(SensorValue[HandCoder]> 1250);
 			motor[HandMotor] = 0;
 		}else if(vexRT[Btn8R])
 		{
@@ -192,14 +195,49 @@ task GlCom()
 		}
 	}
 }
+task HighHand()
+{
+	bool Hold;
+	bool Shoot;
+	while(true)
+	{
+		if (vexRT[Btn7R])
+		{
+			Hold = !Hold;
+			waitUntil(!vexRT[Btn7R]);
+		}
+		if(Hold)
+		{
+			if(SensorValue[I2C_3] < -550){motor[HighHandMotor] = 75;}
+			else if(SensorValue[I2C_3] > -350){motor[HighHandMotor] = -75;}
+			else{motor[HighHandMotor] = 0;}
+			if(vexRT[Btn7L])
+			{
+				motor[HighHandMotor] = -127;
+				waitUntil(SensorValue[I2C_3] < -950);
+				motor[HighHandMotor] = 0;
+			}
+		}else
+		{
+			if(!SensorValue[HighHandTouch]){motor[HighHandMotor] = 50;}
+			else{motor[HighHandMotor] = 0;}
+		}
+	}
+}
 task main()
 {
+	//HighHand Rest
+	motor[HighHandMotor] = 75;
+	waitUntil(SensorValue[HighHandTouch]);
+	SensorValue[I2C_3] = 0;
+	motor[HighHandMotor] = 0;
 	startTask(GlCom, kDefaultTaskPriority);
 	startTask(Hand, kDefaultTaskPriority);
 	startTask(Boom, kDefaultTaskPriority);
 	startTask(Flash, kDefaultTaskPriority);
 	startTask(DriverMotorCommand, kDefaultTaskPriority);
 	startTask(OtherDriver, kDefaultTaskPriority);
+	startTask(HighHand,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
 	waitUntil(false);
 }
