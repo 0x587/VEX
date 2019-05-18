@@ -103,7 +103,7 @@ task Boom()
 		{
 			while(SensorValue[HandCoder] < 1200)
 			{
-				motor[HandMotor] = 30;
+				motor[HandMotor] = 50;
 			}
 			motor[HandMotor] = 0;
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
@@ -129,9 +129,10 @@ task Hand()
 			clearTimer(T4);
 			motor[HandMotor] = -127;
 			waitUntil(SensorValue[HandCoder]< 720);
-			waitUntil(vexRT[Btn8L] | time1[T4] >1000);
+			motor[HandMotor] = -30;
+			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder]> 1800);
+			waitUntil(SensorValue[HandCoder]> 1250);
 			motor[HandMotor] = 0;
 		}else if(vexRT[Btn8R])
 		{
@@ -194,14 +195,49 @@ task GlCom()
 		}
 	}
 }
+task HighHand()
+{
+	bool Hold;
+	bool Shoot;
+	while(true)
+	{
+		if (vexRT[Btn7R])
+		{
+			Hold = !Hold;
+			waitUntil(!vexRT[Btn7R]);
+		}
+		if(Hold)
+		{
+			if(SensorValue[I2C_3] < -550){motor[HighHandMotor] = 75;}
+			else if(SensorValue[I2C_3] > -350){motor[HighHandMotor] = -75;}
+			else{motor[HighHandMotor] = 0;}
+			if(vexRT[Btn7L])
+			{
+				motor[HighHandMotor] = -127;
+				waitUntil(SensorValue[I2C_3] < -950);
+				motor[HighHandMotor] = 0;
+			}
+		}else
+		{
+			if(!SensorValue[HighHandTouch]){motor[HighHandMotor] = 50;}
+			else{motor[HighHandMotor] = 0;}
+		}
+	}
+}
 task main()
 {
+	//HighHand Rest
+	motor[HighHandMotor] = 75;
+	waitUntil(SensorValue[HighHandTouch]);
+	SensorValue[I2C_3] = 0;
+	motor[HighHandMotor] = 0;
 	startTask(GlCom, kDefaultTaskPriority);
 	startTask(Hand, kDefaultTaskPriority);
 	startTask(Boom, kDefaultTaskPriority);
 	startTask(Flash, kDefaultTaskPriority);
 	startTask(DriverMotorCommand, kDefaultTaskPriority);
 	startTask(OtherDriver, kDefaultTaskPriority);
+	startTask(HighHand,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
 	waitUntil(false);
 }

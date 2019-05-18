@@ -203,5 +203,5 @@ task main()
 	resetMotorEncoder(RightWheel);
 	//setMotorTarget(LeftWheel, 100,25,false);
 	//setMotorTarget(RightWheel,100,25,false);
-	wait1Msec(1000);
+	wait1Msec(1000
 }
