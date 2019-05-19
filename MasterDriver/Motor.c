@@ -1,7 +1,7 @@
 #pragma config(Motor, port8, LeftWheel, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_1)
 #pragma config(Motor, port9, RightWheel, tmotorVex393_MC29, openLoop, encoderPort, I2C_2)
 
-#include "Struct.c"
+/*
 void UpDateSpeed(DriverMotorValue* MotorList)
 {
 	short T=5;
@@ -33,9 +33,19 @@ void PIDCommandMotor(DriverMotorValue* MotorList)
 		}
 	}
 }
-
+*/
 void DriverMotorDo(command* Command)
 {
-	motor[LeftWheel]  = Command -> LeftWheelPower;
-	motor[RightWheel] = Command -> RightWheelPower;
+	if(abs(Command -> LeftWheelPower) >20)
+	{
+		motor[LeftWheel]  = Command -> LeftWheelPower;
+	}else{
+		motor[LeftWheel]  = 0;
+	}
+	if(abs(Command -> RightWheelPower) >20)
+	{
+		motor[RightWheel]  = Command -> RightWheelPower;
+	}else{
+		motor[RightWheel]  = 0;
+	}
 }
