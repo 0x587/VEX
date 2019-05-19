@@ -1,5 +1,7 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    HandCoder,      sensorPotentiometer)
+#pragma config(Sensor, in2,    Xasic,          sensorAccelerometer)
+#pragma config(Sensor, in3,    ExpanderBattery, sensorAnalog)
 #pragma config(Sensor, dgtl1,  BoomLock,       sensorTouch)
 #pragma config(Sensor, dgtl2,  KeyTouch,       sensorTouch)
 #pragma config(Sensor, dgtl3,  HighHandTouch,  sensorTouch)
@@ -224,6 +226,9 @@ task HighHandControl()
 task main()
 {
 	//HighHand Rest
+	bLCDBacklight = true;
+	clearLCDLine(0);
+	clearLCDLine(1);
 	motor[HighHandMotor] = 75;
 	waitUntil(SensorValue[HighHandTouch]);
 	SensorValue[I2C_3] = 0;
@@ -236,5 +241,22 @@ task main()
 	startTask(DtControl, kDefaultTaskPriority);
 	startTask(HighHandControl,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
-	waitUntil(false);
+	short CrotexBattery ,CBDecimal;
+	short PowerExpBattery ,PEDecimal;
+	while(true)
+	{
+		CrotexBattery = nAvgBatteryLevel/1000;
+		CBDecimal = nAvgBatteryLevel-CrotexBattery*1000;
+		short Temp = SensorValue[in3] /4 /70*1000;
+		PowerExpBattery = Temp/1000;
+		PEDecimal = Temp-PowerExpBattery*1000;
+		displayLCDString(0,0,"Crotex:");
+		displayLCDNumber(0,8,CrotexBattery);
+		displayLCDChar(0,9,'.');
+		displayLCDNumber(0,10,CBDecimal);
+		displayLCDString(1,0,"PowerExp:");
+		displayLCDNumber(1,10,PowerExpBattery);
+		displayLCDChar(1,11,'.');
+		displayLCDNumber(1,12,PEDecimal);
+	}
 }
