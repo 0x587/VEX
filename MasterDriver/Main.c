@@ -133,14 +133,18 @@ task HandControl()
 			clearTimer(T4);
 			motor[HandMotor] = 127;
 			waitUntil(SensorValue[HandCoder] >= 2700 | time1[T4] >750);
-			motor[HandMotor] = 70;
-			if(SensorValue[HandCoder] >= 2700){isDown = true;}
+			motor[HandMotor] = 50;
+			if(SensorValue[HandCoder] >= 2000){isDown = true;}
 			else{isDown = false;}
 			if(isDown)
 			{
 				waitUntil(vexRT[Btn8R] | time1[T4] >2000);
 				motor[HandMotor] = -127;
-				waitUntil(SensorValue[HandCoder] <= 2000);
+				waitUntil(SensorValue[HandCoder] <= 1250);
+				motor[HandMotor] = -50;
+				waitUntil(SensorValue[HandCoder] <= 1000);
+				motor[HandMotor] = 50;
+				waitUntil(SensorValue[HandCoder] <= 750);
 				motor[HandMotor] = 0;
 				isDown = false;
 			}else
