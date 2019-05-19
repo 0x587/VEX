@@ -97,7 +97,7 @@ task BoomControl()
 		{
 			while(SensorValue[HandCoder] < 1200)
 			{
-				motor[HandMotor] = 50;
+				motor[HandMotor] = 100;
 			}
 			motor[HandMotor] = 0;
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
