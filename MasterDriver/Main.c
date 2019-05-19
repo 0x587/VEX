@@ -56,22 +56,16 @@ task Flash()
 		}
 	}
 }
-task OtherDriver()
+task DtControl()
 {
-
 	while (true)
 	{
-
 		if (vexRT[Btn6U]){motor[DtMotor] = 127;}//Dt
 		else if (vexRT[Btn6D]){motor[DtMotor] = -127;}
 		else{motor[DtMotor] = 0;}
-
-
-//////////////////////////////////////
-
 	}
 }
-task Boom()
+task BoomControl()
 {
 	bool Locking;
 	bool CanShoot;
@@ -116,7 +110,7 @@ task Boom()
 		if(time1[T3] > 2000){Locking = false;}
 	}
 }
-task Hand()
+task HandControl()
 {
 	bool isDown;
 	//bool isHold;
@@ -162,7 +156,7 @@ task Hand()
 		}
 	}
 }
-task GlCom()
+task GlControl()
 {
 	short GL;
 	while (true)
@@ -195,7 +189,7 @@ task GlCom()
 		}
 	}
 }
-task HighHand()
+task HighHandControl()
 {
 	bool Hold;
 	bool Shoot;
@@ -231,13 +225,13 @@ task main()
 	waitUntil(SensorValue[HighHandTouch]);
 	SensorValue[I2C_3] = 0;
 	motor[HighHandMotor] = 0;
-	startTask(GlCom, kDefaultTaskPriority);
-	startTask(Hand, kDefaultTaskPriority);
-	startTask(Boom, kDefaultTaskPriority);
+	startTask(GlControl, kDefaultTaskPriority);
+	startTask(HandControl, kDefaultTaskPriority);
+	startTask(BoomControl, kDefaultTaskPriority);
 	startTask(Flash, kDefaultTaskPriority);
 	startTask(DriverMotorCommand, kDefaultTaskPriority);
-	startTask(OtherDriver, kDefaultTaskPriority);
-	startTask(HighHand,kDefaultTaskPriority);
+	startTask(DtControl, kDefaultTaskPriority);
+	startTask(HighHandControl,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
 	waitUntil(false);
 }
