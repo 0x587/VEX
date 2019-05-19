@@ -1,4 +1,3 @@
-#include "Struct.c"
 #include "Math.c"
 short DataHandling(short data)
 {

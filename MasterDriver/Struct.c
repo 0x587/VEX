@@ -1,3 +1,4 @@
+/*
 struct DriverMotorValue
 {
 	tMotor Port;
@@ -10,6 +11,7 @@ struct DriverMotorValue
 	int dValue;
 	short Force;
 };
+*/
 
 struct command
 {
