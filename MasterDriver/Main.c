@@ -107,7 +107,7 @@ task BoomControl()
 		}
 		///////////////////////////////////
 		if (!SensorValue[BoomLock]){clearTimer(T3);}
-		if(time1[T3] > 2000){Locking = false;}
+		if(time1[T3] > 2500){Locking = false;}//BoomTimeOut
 	}
 }
 task HandControl()
