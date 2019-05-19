@@ -192,7 +192,6 @@ task GlControl()
 task HighHandControl()
 {
 	bool Hold;
-	bool Shoot;
 	while(true)
 	{
 		if (vexRT[Btn7R])
