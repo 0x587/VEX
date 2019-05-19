@@ -36,13 +36,13 @@ void PIDCommandMotor(DriverMotorValue* MotorList)
 */
 void DriverMotorDo(command* Command)
 {
-	if(Command -> LeftWheelPower >20)
+	if(abs(Command -> LeftWheelPower) >20)
 	{
 		motor[LeftWheel]  = Command -> LeftWheelPower;
 	}else{
 		motor[LeftWheel]  = 0;
 	}
-	if(Command -> RightWheelPower >20)
+	if(abs(Command -> RightWheelPower) >20)
 	{
 		motor[RightWheel]  = Command -> RightWheelPower;
 	}else{
