@@ -248,16 +248,19 @@ task main()
 	{
 		CrotexBattery = nAvgBatteryLevel/1000;
 		CBDecimal = nAvgBatteryLevel-CrotexBattery*1000;
-		short Temp = SensorValue[in3] /4 /70*1000;
+		float Temp = SensorValue[in3] /4 /70*1000;
 		PowerExpBattery = Temp/1000;
 		PEDecimal = Temp-PowerExpBattery*1000;
 		displayLCDString(0,0,"Crotex:");
 		displayLCDNumber(0,8,CrotexBattery);
 		displayLCDChar(0,9,'.');
 		displayLCDNumber(0,10,CBDecimal);
+		displayLCDChar(0,13,220);
 		displayLCDString(1,0,"PowerExp:");
-		displayLCDNumber(1,10,PowerExpBattery);
-		displayLCDChar(1,11,'.');
-		displayLCDNumber(1,12,PEDecimal);
+    displayLCDNumber(1,9,SensorValue[in3]/4/70);
+    displayLCDChar(1,10,'.');
+    displayLCDNumber(1,11,(SensorValue[in3] - (SensorValue[in3]/70)/4));
+    displayLCDChar(1,14,220);
+    wait1Msec(500);
 	}
 }
