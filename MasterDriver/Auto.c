@@ -164,44 +164,63 @@ void HandDriven()
 }*/
 task main()
 {
+	while(true)
+	{
+	clearTimer(T1);
+	clearTimer(T2);
+	clearLCDLine(0);
+	clearLCDLine(1);
 	bLCDBacklight = true;
 	//motor[GlMotor] = motor[DtMotor] = 0;
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
 	//waitUntil(SensorValue[KeyTouch] | nLCDButtons==2);
 	short UpCode1 = 1000;
+	/*
 	setMotorTarget(LeftWheel, UpCode1,64,false);
 	setMotorTarget(RightWheel, UpCode1,64,false);
 	waitUntil(
 				abs(getMotorEncoder(LeftWheel) - UpCode1/4) < 50
 				&
 				abs(getMotorEncoder(RightWheel) - UpCode1/4) < 50
-	);
-	setMotorTarget(LeftWheel, UpCode1,122,false);
-	setMotorTarget(RightWheel, UpCode1,127,false);
-	waitUntil(
+	);*/
+	setMotorTarget(LeftWheel, UpCode1,100,false);
+	setMotorTarget(RightWheel, UpCode1,110,false);
+	/*waitUntil(
 				abs(getMotorEncoder(LeftWheel) - UpCode1) < 50
 				&
 				abs(getMotorEncoder(RightWheel) - UpCode1) < 50
-	);
-	wait1Msec(1000);
-	short BackPlace = 550;
+	);*/
+	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
+	displayLCDNumber(0,0,time1[T1]);
+	displayLCDNumber(0,10,getMotorEncoder(LeftWheel) - getMotorEncoder(RightWheel));
+	//short BackPlace = 550;
+	//motor[LeftWheel] = motor[RightWheel] = 75;
+	//waitUntil(getMotorEncoder(LeftWheel) > 950 & getMotorEncoder(RightWheel) > 950);
+	short BackPlace = 0;
 	setMotorTarget(LeftWheel, BackPlace,100,false);
-	setMotorTarget(RightWheel, BackPlace,100,false);
-	waitUntil(
-				getMotorEncoder(LeftWheel) < BackPlace +15
+	setMotorTarget(RightWheel, BackPlace,110,false);
+	/*waitUntil(
+				getMotorEncoder(LeftWheel) < BackPlace
 				&
-				getMotorEncoder(RightWheel)< BackPlace +15
+				getMotorEncoder(RightWheel)< BackPlace
 	);
-	waitUntil(vexRT[Btn8D]);
+	//waitUntil(vexRT[Btn8D]);
+	wait1Msec(1000);*/
+	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
+	displayLCDNumber(1,0,time1[T2]);
+	displayLCDNumber(1,10,getMotorEncoder(LeftWheel) - getMotorEncoder(RightWheel));
+	waitUntil(false);
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
-	setMotorTarget(RightWheel, -635,100,false);
-	waitUntil(getMotorEncoder(RightWheel) <= 635);
+	setMotorTarget(RightWheel, -635,80,false);
+	waitUntil(getMotorEncoder(RightWheel) <= -635);
 	waitUntil(vexRT[Btn8U]);
+	wait1Msec(100);
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
-	//setMotorTarget(LeftWheel, 100,25,false);
-	//setMotorTarget(RightWheel,100,25,false);
+	setMotorTarget(LeftWheel, 65,50,false);
+	setMotorTarget(RightWheel,65,50,false);
 	wait1Msec(1000);
+}
 }
