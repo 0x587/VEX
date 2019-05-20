@@ -230,7 +230,8 @@ task main()
 	clearLCDLine(0);
 	clearLCDLine(1);
 	motor[HighHandMotor] = 75;
-	waitUntil(SensorValue[HighHandTouch]);
+	clearTimer(T1);
+	waitUntil(SensorValue[HighHandTouch] | time1[T1] > 1000);
 	SensorValue[I2C_3] = 0;
 	motor[HighHandMotor] = 0;
 	startTask(GlControl, kDefaultTaskPriority);
