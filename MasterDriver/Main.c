@@ -115,23 +115,22 @@ task BoomControl()
 task HandControl()
 {
 	bool isDown;
+	bool isUse;
 	//bool isHold;
 	while(true)
 	{
-		/////////////////////////////
 		//////////////////////////////////
 		if (vexRT[Btn8L])
 		{
-			clearTimer(T4);
-			motor[HandMotor] = -127;
-			waitUntil(SensorValue[HandCoder] > 2500);
-			motor[HandMotor] = -30;
-			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
+			isUse = true;
+			waitUntil(vexRT[Btn8L]);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder] < 1400);
+			waitUntil(SensorValue[HandCoder] < 1200);
 			motor[HandMotor] = 0;
+			isUse = false;
 		}else if(vexRT[Btn8R])
 		{
+			isUse = true;
 			clearTimer(T4);
 			motor[HandMotor] = 127;
 			waitUntil(SensorValue[HandCoder] <= 500 | time1[T4] >750);
@@ -156,9 +155,20 @@ task HandControl()
 				motor[HandMotor] = 0;
 				isDown = false;
 			}
-		}else
-		{
-			motor[HandMotor] = 0;
+			isUse = false;
+		}else{
+			if(!isUse)
+			{
+				if(SensorValue[HandCoder] <= 2450 )
+				{
+					motor[HandMotor] = -50;
+				}else
+				{
+					motor[HandMotor] = 0;
+				}
+			}else{
+					motor[HandMotor] = 0;
+			}
 		}
 	}
 }
