@@ -8,8 +8,8 @@
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
-#pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop)
-#pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
+#pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop, reversed)
+#pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop, reversed)
 #pragma config(Motor,  port4,           HighHandMotor, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
 #pragma config(Motor,  port5,           HandMotor,     tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed)
@@ -124,29 +124,29 @@ task HandControl()
 		{
 			clearTimer(T4);
 			motor[HandMotor] = -127;
-			waitUntil(SensorValue[HandCoder]< 720);
+			waitUntil(SensorValue[HandCoder] > 2500);
 			motor[HandMotor] = -30;
 			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder]> 1250);
+			waitUntil(SensorValue[HandCoder] < 1400);
 			motor[HandMotor] = 0;
 		}else if(vexRT[Btn8R])
 		{
 			clearTimer(T4);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder] >= 2700 | time1[T4] >750);
+			waitUntil(SensorValue[HandCoder] <= 500 | time1[T4] >750);
 			motor[HandMotor] = 50;
-			if(SensorValue[HandCoder] >= 2000){isDown = true;}
+			if(SensorValue[HandCoder] <= 600){isDown = true;}
 			else{isDown = false;}
 			if(isDown)
 			{
 				waitUntil(vexRT[Btn8R] | time1[T4] >2000);
 				motor[HandMotor] = -127;
-				waitUntil(SensorValue[HandCoder] <= 1250);
+				waitUntil(SensorValue[HandCoder] >= 750);
 				motor[HandMotor] = -50;
-				waitUntil(SensorValue[HandCoder] <= 1000);
+				waitUntil(SensorValue[HandCoder] >= 1000);
 				motor[HandMotor] = 50;
-				waitUntil(SensorValue[HandCoder] <= 750);
+				waitUntil(SensorValue[HandCoder] >= 1250);
 				motor[HandMotor] = 0;
 				isDown = false;
 			}else
@@ -261,6 +261,7 @@ task main()
     displayLCDChar(1,10,'.');
     displayLCDNumber(1,11,(SensorValue[in3] - (SensorValue[in3]/70)/4));
     displayLCDChar(1,14,220);
-    wait1Msec(500);
+    wait1Msec(500
+    );
 	}
 }
