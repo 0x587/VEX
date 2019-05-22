@@ -1,5 +1,7 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    HandCoder,      sensorPotentiometer)
+#pragma config(Sensor, in2,    Xasic,          sensorAccelerometer)
+#pragma config(Sensor, in3,    ExpanderBattery, sensorAnalog)
 #pragma config(Sensor, dgtl1,  BoomLock,       sensorTouch)
 #pragma config(Sensor, dgtl2,  KeyTouch,       sensorTouch)
 #pragma config(Sensor, dgtl3,  HighHandTouch,  sensorTouch)
@@ -133,14 +135,18 @@ task HandControl()
 			clearTimer(T4);
 			motor[HandMotor] = 127;
 			waitUntil(SensorValue[HandCoder] >= 2700 | time1[T4] >750);
-			motor[HandMotor] = 70;
-			if(SensorValue[HandCoder] >= 2700){isDown = true;}
+			motor[HandMotor] = 50;
+			if(SensorValue[HandCoder] >= 2000){isDown = true;}
 			else{isDown = false;}
 			if(isDown)
 			{
 				waitUntil(vexRT[Btn8R] | time1[T4] >2000);
 				motor[HandMotor] = -127;
-				waitUntil(SensorValue[HandCoder] <= 2000);
+				waitUntil(SensorValue[HandCoder] <= 1250);
+				motor[HandMotor] = -50;
+				waitUntil(SensorValue[HandCoder] <= 1000);
+				motor[HandMotor] = 50;
+				waitUntil(SensorValue[HandCoder] <= 750);
 				motor[HandMotor] = 0;
 				isDown = false;
 			}else
@@ -220,8 +226,12 @@ task HighHandControl()
 task main()
 {
 	//HighHand Rest
+	bLCDBacklight = true;
+	clearLCDLine(0);
+	clearLCDLine(1);
 	motor[HighHandMotor] = 75;
-	waitUntil(SensorValue[HighHandTouch]);
+	clearTimer(T1);
+	waitUntil(SensorValue[HighHandTouch] | time1[T1] > 1000);
 	SensorValue[I2C_3] = 0;
 	motor[HighHandMotor] = 0;
 	startTask(GlControl, kDefaultTaskPriority);
@@ -232,5 +242,25 @@ task main()
 	startTask(DtControl, kDefaultTaskPriority);
 	startTask(HighHandControl,kDefaultTaskPriority);
 	//startTask(OutPutBoom , kDefaultTaskPriority);
-	waitUntil(false);
+	short CrotexBattery ,CBDecimal;
+	short PowerExpBattery ,PEDecimal;
+	while(true)
+	{
+		CrotexBattery = nAvgBatteryLevel/1000;
+		CBDecimal = nAvgBatteryLevel-CrotexBattery*1000;
+		float Temp = SensorValue[in3] /4 /70*1000;
+		PowerExpBattery = Temp/1000;
+		PEDecimal = Temp-PowerExpBattery*1000;
+		displayLCDString(0,0,"Crotex:");
+		displayLCDNumber(0,8,CrotexBattery);
+		displayLCDChar(0,9,'.');
+		displayLCDNumber(0,10,CBDecimal);
+		displayLCDChar(0,13,220);
+		displayLCDString(1,0,"PowerExp:");
+    displayLCDNumber(1,9,SensorValue[in3]/4/70);
+    displayLCDChar(1,10,'.');
+    displayLCDNumber(1,11,(SensorValue[in3] - (SensorValue[in3]/70)/4));
+    displayLCDChar(1,14,220);
+    wait1Msec(500);
+	}
 }
