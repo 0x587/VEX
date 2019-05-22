@@ -67,6 +67,7 @@ task DtControl()
 		else{motor[DtMotor] = 0;}
 	}
 }
+bool isUse;
 task BoomControl()
 {
 	bool Locking;
@@ -92,12 +93,18 @@ task BoomControl()
 		}else
 		{
 			if (vexRT[Btn7U]){motor[BoomMotor] = motor[BoomMotorAnother] = -127;}
-			else if (vexRT[Btn7D]){motor[BoomMotor] = motor[BoomMotorAnother] = 127;}
-			else{motor[BoomMotor] = motor[BoomMotorAnother] = 0;}
+			else if (vexRT[Btn7D])
+			{
+				isUse = true;
+				if(SensorValue[HandCoder] > 1750){motor[HandMotor] = 100;}
+				motor[BoomMotor] = motor[BoomMotorAnother] = 127;
+			}
+			else{motor[BoomMotor] = motor[BoomMotorAnother] = 0;isUse = false;}
 		}
 		if (CanShoot & SensorValue[BoomLock])
 		{
-			while(SensorValue[HandCoder] < 1200)
+			isUse = true;
+			while(SensorValue[HandCoder] > 1750)
 			{
 				motor[HandMotor] = 100;
 			}
@@ -105,7 +112,7 @@ task BoomControl()
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
 			waitUntil(!SensorValue[BoomLock]);
 			motor[BoomMotor] = motor[BoomMotorAnother] = 0;
-			CanShoot = false;
+			isUse = CanShoot = false;
 		}
 		///////////////////////////////////
 		if (!SensorValue[BoomLock]){clearTimer(T3);}
@@ -115,8 +122,6 @@ task BoomControl()
 task HandControl()
 {
 	bool isDown;
-	bool isUse;
-	//bool isHold;
 	while(true)
 	{
 		//////////////////////////////////
