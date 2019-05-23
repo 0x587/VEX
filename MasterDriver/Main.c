@@ -104,7 +104,7 @@ task BoomControl()
 		if (Locking)
 		{
 				if (!SensorValue[BoomLock]){motor[BoomMotor] = motor[BoomMotorAnother] = 127;}
-				else{motor[BoomMotor] = motor[BoomMotorAnother] = 50;}
+				else{motor[BoomMotor] = motor[BoomMotorAnother] = 40;}
 		}else
 		{
 			if (vexRT[Btn7U]){motor[BoomMotor] = motor[BoomMotorAnother] = -127;}
