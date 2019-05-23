@@ -74,15 +74,18 @@ task main()
 	clearLCDLine(0);clearLCDLine(1);
 	short VoltageErroe = -0;
 	bLCDBacklight = true;
+	//Go
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
-	//waitUntil(SensorValue[KeyTouch] | nLCDButtons==2);
+	waitUntil(SensorValue[KeyTouch] | nLCDButtons==2);
 	short UpCode1 = 1000;
 	setMotorTarget(LeftWheel, UpCode1,100 + VoltageErroe,false);
 	setMotorTarget(RightWheel, UpCode1,110 + VoltageErroe,false);
 	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
 	displayLCDNumber(0,0,time1[T1]);
 	displayLCDNumber(0,10,getMotorEncoder(LeftWheel) - getMotorEncoder(RightWheel));
+	//Back
+
 	//short BackPlace = 550;
 	short BackPlace = 0;
 	setMotorTarget(LeftWheel, BackPlace,100 + VoltageErroe,false);
@@ -91,12 +94,12 @@ task main()
 	displayLCDNumber(1,0,time1[T2]);
 	displayLCDNumber(1,10,getMotorEncoder(LeftWheel) - getMotorEncoder(RightWheel));
 	waitUntil(false);
+	//Turn
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
 	setMotorTarget(RightWheel, -635,80,false);
 	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
 	waitUntil(vexRT[Btn8U]);
-	wait1Msec(100);
 	resetMotorEncoder(LeftWheel);
 	resetMotorEncoder(RightWheel);
 	setMotorTarget(LeftWheel, 65,50,false);
