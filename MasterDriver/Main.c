@@ -8,8 +8,8 @@
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
-#pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop)
-#pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop)
+#pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop, reversed)
+#pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop, reversed)
 #pragma config(Motor,  port4,           HighHandMotor, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
 #pragma config(Motor,  port5,           HandMotor,     tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed)
@@ -33,28 +33,45 @@ task DriverMotorCommand()
 		DriverMotorDo(Command);
 	}
 }
+bool Locking;
+bool CanShoot;	bool isLight;
 task Flash()
 {
-	bool isLight;
 	while(true)
 	{
 		//Update isLight
-		if(vexRT[Btn5U])
+		if(vexRT[Btn6D] & vexRT[Btn6U])
 		{
 			isLight=!isLight;
-			wait1Msec(200);
+			waitUntil(!(vexRT[Btn6D] | vexRT[Btn6U]));
 		}
-		//Boom Run
-		if(vexRT[Btn8R] & vexRT[Btn5D])
+		//Boom Flash
+		if(isLight)
 		{
-			short BoomT;
-			BoomT = getMotorVelocity(BoomMotor);
-			clearTimer(T1);
-			motor[Light]=motor[Light]=127;
-			waitUntil(time1[T1]>BoomT);
-			clearTimer(T1);
-			motor[Light]=motor[Light]=0;
-			waitUntil(time1[T1]>BoomT);
+			if(Locking)
+			{
+				short BoomT = 200;
+				clearTimer(T2);
+				motor[Light]=motor[Light]=127;
+				waitUntil(time1[T2]>BoomT);
+				clearTimer(T2);
+				motor[Light]=motor[Light]=0;
+				waitUntil(time1[T2]>BoomT);
+				if(CanShoot)
+				{
+					motor[Light]=motor[Light]=127;
+					waitUntil(!CanShoot);
+					wait1Msec(500);
+				}
+			}else{
+				short UsuallyT = 750;
+				clearTimer(T2);
+				motor[Light]=motor[Light]=127;
+				waitUntil(time1[T2]>UsuallyT);
+				clearTimer(T2);
+				motor[Light]=motor[Light]=0;
+				waitUntil(time1[T2]>UsuallyT/2);
+			}
 		}
 	}
 }
@@ -67,10 +84,9 @@ task DtControl()
 		else{motor[DtMotor] = 0;}
 	}
 }
+bool isUse;
 task BoomControl()
 {
-	bool Locking;
-	bool CanShoot;
 	while (true)
 	{
 		//////////////////////////////
@@ -92,12 +108,18 @@ task BoomControl()
 		}else
 		{
 			if (vexRT[Btn7U]){motor[BoomMotor] = motor[BoomMotorAnother] = -127;}
-			else if (vexRT[Btn7D]){motor[BoomMotor] = motor[BoomMotorAnother] = 127;}
-			else{motor[BoomMotor] = motor[BoomMotorAnother] = 0;}
+			else if (vexRT[Btn7D])
+			{
+				isUse = true;
+				if(SensorValue[HandCoder] > 1750){motor[HandMotor] = 100;}
+				motor[BoomMotor] = motor[BoomMotorAnother] = 127;
+			}
+			else{motor[BoomMotor] = motor[BoomMotorAnother] = 0;isUse = false;}
 		}
 		if (CanShoot & SensorValue[BoomLock])
 		{
-			while(SensorValue[HandCoder] < 1200)
+			isUse = true;
+			while(SensorValue[HandCoder] > 1750)
 			{
 				motor[HandMotor] = 100;
 			}
@@ -105,7 +127,7 @@ task BoomControl()
 			motor[BoomMotor] = motor[BoomMotorAnother] = 127;
 			waitUntil(!SensorValue[BoomLock]);
 			motor[BoomMotor] = motor[BoomMotorAnother] = 0;
-			CanShoot = false;
+			isUse = CanShoot = false;
 		}
 		///////////////////////////////////
 		if (!SensorValue[BoomLock]){clearTimer(T3);}
@@ -115,38 +137,35 @@ task BoomControl()
 task HandControl()
 {
 	bool isDown;
-	//bool isHold;
 	while(true)
 	{
-		/////////////////////////////
 		//////////////////////////////////
 		if (vexRT[Btn8L])
 		{
-			clearTimer(T4);
-			motor[HandMotor] = -127;
-			waitUntil(SensorValue[HandCoder]< 720);
-			motor[HandMotor] = -30;
-			waitUntil(vexRT[Btn8L] | time1[T4] >2000);
+			isUse = true;
+			waitUntil(vexRT[Btn8L]);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder]> 1250);
+			waitUntil(SensorValue[HandCoder] < 1200);
 			motor[HandMotor] = 0;
+			isUse = false;
 		}else if(vexRT[Btn8R])
 		{
+			isUse = true;
 			clearTimer(T4);
 			motor[HandMotor] = 127;
-			waitUntil(SensorValue[HandCoder] >= 2700 | time1[T4] >750);
+			waitUntil(SensorValue[HandCoder] <= 500 | time1[T4] >750);
 			motor[HandMotor] = 50;
-			if(SensorValue[HandCoder] >= 2000){isDown = true;}
+			if(SensorValue[HandCoder] <= 600){isDown = true;}
 			else{isDown = false;}
 			if(isDown)
 			{
 				waitUntil(vexRT[Btn8R] | time1[T4] >2000);
 				motor[HandMotor] = -127;
-				waitUntil(SensorValue[HandCoder] <= 1250);
+				waitUntil(SensorValue[HandCoder] >= 750);
 				motor[HandMotor] = -50;
-				waitUntil(SensorValue[HandCoder] <= 1000);
+				waitUntil(SensorValue[HandCoder] >= 1000);
 				motor[HandMotor] = 50;
-				waitUntil(SensorValue[HandCoder] <= 750);
+				waitUntil(SensorValue[HandCoder] >= 1250);
 				motor[HandMotor] = 0;
 				isDown = false;
 			}else
@@ -156,9 +175,20 @@ task HandControl()
 				motor[HandMotor] = 0;
 				isDown = false;
 			}
-		}else
-		{
-			motor[HandMotor] = 0;
+			isUse = false;
+		}else{
+			if(!isUse)
+			{
+				if(SensorValue[HandCoder] <= 2450 )
+				{
+					motor[HandMotor] = -50;
+				}else
+				{
+					motor[HandMotor] = 0;
+				}
+			}else{
+					motor[HandMotor] = 0;
+			}
 		}
 	}
 }
@@ -261,6 +291,7 @@ task main()
     displayLCDChar(1,10,'.');
     displayLCDNumber(1,11,(SensorValue[in3] - (SensorValue[in3]/70)/4));
     displayLCDChar(1,14,220);
-    wait1Msec(500);
+    wait1Msec(500
+    );
 	}
 }
