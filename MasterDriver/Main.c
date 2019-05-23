@@ -10,7 +10,7 @@
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           GlMotor,       tmotorVex393TurboSpeed_HBridge, openLoop, reversed)
 #pragma config(Motor,  port3,           DtMotor,       tmotorVex393TurboSpeed_MC29, openLoop, reversed)
-#pragma config(Motor,  port4,           HighHandMotor, tmotorVex393_MC29, openLoop, reversed, encoderPort, I2C_3)
+#pragma config(Motor,  port4,           HighHandMotor, tmotorVex393_MC29, openLoop, encoderPort, I2C_3)
 #pragma config(Motor,  port5,           HandMotor,     tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           BoomMotor,     tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port7,           BoomMotorAnother, tmotorVex393_MC29, openLoop, reversed)
@@ -237,18 +237,19 @@ task HighHandControl()
 		}
 		if(Hold)
 		{
-			if(SensorValue[I2C_3] < -550){motor[HighHandMotor] = 75;}
-			else if(SensorValue[I2C_3] > -350){motor[HighHandMotor] = -75;}
+			if(SensorValue[I2C_3] > 550){motor[HighHandMotor] = -75;}
+			else if(SensorValue[I2C_3] < 350){motor[HighHandMotor] = 75;}
 			else{motor[HighHandMotor] = 0;}
 			if(vexRT[Btn7L])
 			{
-				motor[HighHandMotor] = -127;
-				waitUntil(SensorValue[I2C_3] < -950);
+				motor[HighHandMotor] = 127;
+				waitUntil(SensorValue[I2C_3] > 950);
 				motor[HighHandMotor] = 0;
 			}
 		}else
 		{
-			if(!SensorValue[HighHandTouch]){motor[HighHandMotor] = 50;}
+			if(!SensorValue[HighHandTouch])
+				{motor[HighHandMotor] = -50;}
 			else{motor[HighHandMotor] = 0;}
 		}
 	}
@@ -259,7 +260,7 @@ task main()
 	bLCDBacklight = true;
 	clearLCDLine(0);
 	clearLCDLine(1);
-	motor[HighHandMotor] = 75;
+	motor[HighHandMotor] = -75;
 	clearTimer(T1);
 	waitUntil(SensorValue[HighHandTouch] | time1[T1] > 1000);
 	SensorValue[I2C_3] = 0;
