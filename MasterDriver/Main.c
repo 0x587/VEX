@@ -33,28 +33,45 @@ task DriverMotorCommand()
 		DriverMotorDo(Command);
 	}
 }
+bool Locking;
+bool CanShoot;	bool isLight;
 task Flash()
 {
-	bool isLight;
 	while(true)
 	{
 		//Update isLight
-		if(vexRT[Btn5U])
+		if(vexRT[Btn6D] & vexRT[Btn6U])
 		{
 			isLight=!isLight;
-			wait1Msec(200);
+			waitUntil(!(vexRT[Btn6D] | vexRT[Btn6U]));
 		}
-		//Boom Run
-		if(vexRT[Btn8R] & vexRT[Btn5D])
+		//Boom Flash
+		if(isLight)
 		{
-			short BoomT;
-			BoomT = getMotorVelocity(BoomMotor);
-			clearTimer(T1);
-			motor[Light]=motor[Light]=127;
-			waitUntil(time1[T1]>BoomT);
-			clearTimer(T1);
-			motor[Light]=motor[Light]=0;
-			waitUntil(time1[T1]>BoomT);
+			if(Locking)
+			{
+				short BoomT = 200;
+				clearTimer(T2);
+				motor[Light]=motor[Light]=127;
+				waitUntil(time1[T2]>BoomT);
+				clearTimer(T2);
+				motor[Light]=motor[Light]=0;
+				waitUntil(time1[T2]>BoomT);
+				if(CanShoot)
+				{
+					motor[Light]=motor[Light]=127;
+					waitUntil(!CanShoot);
+					wait1Msec(500);
+				}
+			}else{
+				short UsuallyT = 750;
+				clearTimer(T2);
+				motor[Light]=motor[Light]=127;
+				waitUntil(time1[T2]>UsuallyT);
+				clearTimer(T2);
+				motor[Light]=motor[Light]=0;
+				waitUntil(time1[T2]>UsuallyT/2);
+			}
 		}
 	}
 }
@@ -70,8 +87,6 @@ task DtControl()
 bool isUse;
 task BoomControl()
 {
-	bool Locking;
-	bool CanShoot;
 	while (true)
 	{
 		//////////////////////////////
