@@ -52,20 +52,32 @@ void GetBall()
 	motor[LeftWheel] = motor[RightWheel] = 0;
 	motor[GlMotor] = 0;
 }
-void BoomOne()
+task Auto5Min()
 {
-	while(SensorValue[HandCoder] < 1200)
-	{
-		motor[HandMotor] = 50;
-	}
-	motor[HandMotor] = 0;
-	motor[BoomMotor]=motor[BoomMotorAnother]=127;
+	waitUntil(vexRT[Btn8U]);
+	waitUntil(!vexRT[Btn8U]);
+	resetMotorEncoder(LeftWheel);
+	resetMotorEncoder(RightWheel);
+	waitUntil(SensorValue[KeyTouch]);
+	waitUntil(!SensorValue[KeyTouch]);
+	clearTimer(T1);
+	motor[BoomMotor] = motor[BoomMotorAnother] = 127;
+	motor[HandMotor] = 50;
 	waitUntil(SensorValue[BoomLock]);
-	wait1Msec(325);
-	motor[BoomMotor]=motor[BoomMotorAnother]=0;
+	wait1Msec(500);
+	motor[BoomMotor] = motor[BoomMotorAnother] = 0;
+	setMotorTarget(LeftWheel, 0 ,70,false);
+	setMotorTarget(RightWheel, 0,70,false);
+	motor[HandMotor] = -35;
+	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
+	motor[LeftWheel]=motor[RightWheel] = 127;
+	waitUntil(getMotorEncoder(LeftWheel) > 950|getMotorEncoder(RightWheel) > 950);
+	motor[LeftWheel]=motor[RightWheel] = 0;
+	motor[HandMotor] = 127;
+	wait1Msec(750);
 }
 task main()
-{
+{/*
 	clearLCDLine(0);clearLCDLine(1);
 	short VoltageErroe = -0;
 	bLCDBacklight = true;
@@ -104,5 +116,5 @@ task main()
 	setMotorTarget(LeftWheel, 64,getMotorEncoder(LeftWheel) + 50,false);
 	setMotorTarget(RightWheel,64,getMotorEncoder(RightWheel) + 50,false);
 	waitUntil(getMotorTargetCompleted(LeftWheel)& getMotorTargetCompleted(RightWheel));
-	wait1Msec(1000);
+	wait1Msec(1000);*/
 }
