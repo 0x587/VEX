@@ -46,7 +46,7 @@ task FrontAuto5S()
 	motor[HandMotor] = 127;
 	wait1Msec(750);
 }
-task RearAuto5S()
+task RearAuto10S()
 {
 	bLCDBacklight = true;
 	clearTimer(T1);
